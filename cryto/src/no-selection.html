@@ -1,8 +1,9 @@
 <template>
-    <h1 class="cover-heading">Select your CryptoCurrency</h1>
+    <require from="./number-format"></require>
+    <h3 class="cover-heading">Select your CryptoCurrency</h3>
     <p>To get information in real time, please select your currency and time to get the refresh.</p>
     <p class="lead">
-      <select value.bind="selectedCurrencyId" change.delegate="DropdownChanged(selectedCurrencyId)">
+      <select value.bind="selectedCurrencyId" change.delegate="getInfo()">
         <option model.bind="null">Choose...</option>
         <option repeat.for="currency of currencies"
                 model.bind="currency">
@@ -10,12 +11,17 @@
         </option>
       </select>
     </p>
-    <h5>Rate of refresh</h5>
-    <p>
-        <input type="text" ref="refreshRate">
-    </p>
-    <p class="lead">
-      <a href="#" class="btn btn-lg btn-secondary">Get Info</a>
-    </p>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-1">Seconds to update the price in minutes: </div><div class="col-xs-1"><input type="text" change.delegate="updateTime()" value.bind="minutes | numberFormat"></div>
+      </div>
+    <div class="row">
+      <p class="lead">
+        <a href="#" class="btn btn-lg btn-secondary" click.trigger="getInfo()">Get Info</a>
+        <a href="#" class="btn btn-lg btn-secondary" click.trigger="clearInterval()">Clear Interval</a>
+      </p>
+  </div>
+
+</div>
     <h2>The price for ${selectedCurrencyId.name} is ${price} and the current market cap is ${marketCap}</h2>
   </template>
