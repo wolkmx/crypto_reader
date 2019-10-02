@@ -1,5 +1,7 @@
 import {HttpClient} from 'aurelia-http-client';
 import {inject} from 'aurelia-framework';
+import {Currencies} from 'currencies';
+import {config} from 'cryptocompare';
 
 @inject(HttpClient)
 export class NoSelection {
@@ -8,16 +10,26 @@ export class NoSelection {
     this.minutes = 0;
     this.price = '-';
     this.marketCap = '-';
+    this.priceInfo = false;
+    this.currencies = Currencies;
+    this.selectedCurrencyId = null;
+    this.config = config;
   }
 
   getInfo() {
     if (this.selectedCurrencyId !== null) {
-      this.http.get('https://min-api.cryptocompare.com/data/pricemultifull?fsyms=' + this.selectedCurrencyId.id + '&tsyms=USD&api_key=d8e8cdf80c624fc67d1984a171499e2b178b0890fee78acb29da167c84d50efd')
+      this.http.get('https://min-api.cryptocompare.com/data/pricemultifull?fsyms=' + this.selectedCurrencyId.id + '&tsyms=USD&api_key=' + this.config.api_key)
         .then(price => {
           this.response = JSON.parse(price.response);
           this.price = this.response.DISPLAY[this.selectedCurrencyId.id].USD.PRICE;
           this.marketCap = this.response.DISPLAY[this.selectedCurrencyId.id].USD.MKTCAP;
+          this.priceInfo = true;
         });
+      if (this.minutes !== 0) {
+        this.setUpdateTime();
+      }
+    } else {
+      this.priceInfo = false;
     }
   }
 
@@ -43,18 +55,10 @@ export class NoSelection {
   }
 
   setUpdateTime() {
-    this.queryApi = window.setInterval(() => {
-      this.getInfo(this.selectedCurrencyId);
-    }, this.minutes * 60000);
+    if (this.selectedCurrencyId !== null) {
+      this.queryApi = window.setInterval(() => {
+        this.getInfo(this.selectedCurrencyId);
+      }, this.minutes * 60000);
+    }
   }
-
-  currencies = [
-    { id: 'BTC', name: 'Bitcoin' },
-    { id: 'ETH', name: 'Ethereum' },
-    { id: 'XRP', name: 'XRP' },
-    { id: 'LTC', name: 'Litecoin' },
-    { id: 'BCH', name: 'Bitcoin Cash' }
-  ];
-
-  selectedCurrencyId = null;
 }
